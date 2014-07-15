@@ -30,6 +30,18 @@ should be imported into the set. Currently the script supports the observable ty
 URIObjectType, DomainNameObjectType, UserAccountObjectType, or HostnameObjectType. If you want to support 
 additional types, you can very simply add the required parsing to this method.
 
+EXAMPLE USE
+===========
+
+To import from a TAXII server:
+
+  stix_import.py -x MyTaxiiServer.com --taxii_username MyUserName --taxii_password MyPassword --taxii_endpoint /taxii-discovery-service --taxii_start_time '2014-05-26 12:00:00' -c testCollection -i 192.168.56.2 -t XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX -r MyReferenceSet
+
+To import from a local STIX document:
+
+  stix_import.py -f STIXDocument.xml i 192.168.56.2 -t XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX -r MyReferenceSet
+
+
 LICENSE
 ===========
 
