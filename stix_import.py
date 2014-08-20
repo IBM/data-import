@@ -2,7 +2,7 @@
 
 import sys, os, types, collections, json, re, io, urllib2, dateutil, datetime, time, pytz
 
-import pprint
+import pprint, getpass
 
 from optparse import OptionParser
 from optparse import BadOptionError
@@ -117,6 +117,8 @@ def print_help(parser):
 # Processes a STIX package dictionary and adds all indicators and observables to a QRadar reference set
 def process_package_dict(args,stix_dict):
 
+	#pp.pprint(stix_dict)
+
 	values = extractObservables( stix_dict["indicators"] )
 
 	if args[0].ip:
@@ -181,9 +183,9 @@ def main():
 
 
 			if args[0].end_ts:
-				structTime = time.strptime(args[0].begin_ts,'%Y-%m-%d %H:%M:%S')
-				end_ts = datetime.fromtimestamp(*structTime[:6])
-				begin_ts = begin_ts.replace(tzinfo=pytz.UTC)
+				structTime = time.strptime(args[0].end_ts,'%Y-%m-%d %H:%M:%S')
+				end_ts = datetime.datetime(*structTime[:6])
+				end_ts = end_ts.replace(tzinfo=pytz.UTC)
 			else:
 				end_ts = None
 					
@@ -206,6 +208,10 @@ def main():
 		
 		if args[0].taxii_username:
 			client.setAuthType(1)
+
+			if not args[0].taxii_password:
+				args[0].taxii_password = getpass.getpass("Enter your taxii password: ")
+
 			client.setAuthCredentials({'username': args[0].taxii_username, 'password': args[0].taxii_password})
 
 		resp = client.callTaxiiService2(args[0].taxii, args[0].taxii_endpoint + "/poll/", t.VID_TAXII_XML_11, poll_req_xml, args[0].taxiiport)
