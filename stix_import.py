@@ -17,7 +17,9 @@ import libtaxii as t
 import libtaxii.messages_11 as tm11
 import libtaxii.clients as tc
 
-def extractObservable(obs, values):
+import lxml.etree
+
+def extractObservable(args, obs, values):
 	typ = obs["properties"]["xsi:type"]
 
 	val = None
@@ -35,7 +37,13 @@ def extractObservable(obs, values):
 		
 	elif typ == "UserAccountObjectType":
 		val = obs["properties"]["username"]
-
+		
+	elif typ == "FileObjectType":
+		pprint.pprint( obs, sys.stderr )
+		val = []
+		for myHash in obs["properties"]["hashes"]:
+			val.append( myHash["simple_hash_value"] )
+		
 	if val:
 		if ( not isinstance(val, basestring) ) and isinstance(val, collections.Iterable):
 			for addr in val:
@@ -49,22 +57,28 @@ def extractObservable(obs, values):
 			print >> sys.stderr, "Encountered unsupported CybOX observable type: " + typ + ", ignoring..."
 		
 		
-def extractObservables(indicators):
+def extractObservables(args,indicators):
 	 
 	values = []
 
 	for indicator in indicators:
+		
+		#Check if we were passed a list of indicators, or observables
+		obs = indicator
+		if "observable" in indicator:
+			obs = indicator["observable"]
+			
 		try:
-			if 'object' in indicator["observable"]:
-				extractObservable( indicator["observable"]["object"], values )
+			if 'object' in obs:
+				extractObservable( args, obs["object"], values )
 			elif 'observable_composition' in indicator["observable"]:
-				for observable in indicator["observable"]["observable_composition"]["observables"]:
-					extractObservable( observable["object"], values )
+				for observable in obs["observable_composition"]["observables"]:
+					extractObservable(args,observable["object"], values )
 			else:
 				raise Exception("Could not find observable in indicator")
 		except:
 			
-			print >> sys.stderr, "Could not handle indicator:\n"
+			print >> sys.stderr, "Could not handle observable/indicator:\n"
 			pprint.pprint( indicator, sys.stderr )
 			raise
 
@@ -117,9 +131,12 @@ def print_help(parser):
 # Processes a STIX package dictionary and adds all indicators and observables to a QRadar reference set
 def process_package_dict(args,stix_dict):
 
-	#pp.pprint(stix_dict)
-
-	values = extractObservables( stix_dict["indicators"] )
+	values = []
+	if "observables" in stix_dict:
+		values.extend( extractObservables( args, stix_dict["observables"]["observables"] ) )
+		
+	if "indicators" in stix_dict:
+		values.extend( extractObservables( args, stix_dict["indicators"] ) )
 
 	if args[0].ip:
 		serverIP = args[0].ip
@@ -253,7 +270,9 @@ def main():
 	# Import from a XML file on disk
 	elif args[0].referenceset and args[0].file:
 		
-		stix_package = STIXPackage.from_xml(args[0].file)
+		parser = EntityParser()
+
+		stix_package = parser.parse_xml(args[0].file, False)
 
 		indicators = process_package_dict( args, stix_package.to_dict() )
 		
