@@ -22,6 +22,9 @@ import lxml.etree
 def extractObservable(args, obs, values):
 	typ = obs["properties"]["xsi:type"]
 
+	if args[0].type and args[0].type != typ:
+		return
+
 	val = None
 	
 	if typ == "AddressObjectType":
@@ -101,7 +104,7 @@ def get_parser():
 	parser.add_option('-i', '--ip', default="127.0.0.1", help='IP or Host of the QRadar console, or localhost if not present', action='store')
 	parser.add_option('-t', '--token', help='QRadar authorized service token', action='store')
 	parser.add_option('-f', '--file', help='STIX file to import. Either this parameter or a STIX file is required', action='store')
-	
+	parser.add_option('-y', '--type', help='Only import this type of indicator', action='store')
 	parser.add_option('--strict', action="store_true", help="Raise an error on an unsupported indicator. Defaults to simply printing to stderr.")
 	parser.add_option('--verbose', action="store_true", help="Print various inputs and outputs to STDERR")
 	
