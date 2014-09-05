@@ -6,6 +6,8 @@ This script allows you to run an AQL query and use the result to populate a refe
 Usage
 ========================
 
+<pre>
+
 Usage: aql_to_reference_data.py [options]
 
 Options:
@@ -28,3 +30,4 @@ Options:
                         loading new data
   -v, --verbose         Verbose output
 
+</pre>
