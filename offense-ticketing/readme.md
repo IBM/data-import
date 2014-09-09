@@ -1,2 +1,0 @@
-Offense Ticketing Sample
--------------------------
