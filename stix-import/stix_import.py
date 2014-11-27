@@ -18,6 +18,7 @@ import libtaxii.messages_11 as tm11
 import libtaxii.clients as tc
 
 import lxml.etree
+from xml.etree.ElementTree import XML, XMLParser, tostring, TreeBuilder
 
 def extractObservable(args, obs, values):
 	typ = obs["properties"]["xsi:type"]
@@ -42,10 +43,9 @@ def extractObservable(args, obs, values):
 		val = obs["properties"]["username"]
 		
 	elif typ == "FileObjectType":
-		pprint.pprint( obs, sys.stderr )
 		val = []
 		for myHash in obs["properties"]["hashes"]:
-			val.append( myHash["simple_hash_value"] )
+			val.append( myHash["simple_hash_value"]["value"] )
 		
 	if val:
 		if ( not isinstance(val, basestring) ) and isinstance(val, collections.Iterable):
@@ -74,11 +74,11 @@ def extractObservables(args,indicators):
 		try:
 			if 'object' in obs:
 				extractObservable( args, obs["object"], values )
-			elif 'observable_composition' in indicator["observable"]:
+			elif 'observable_composition' in obs:
 				for observable in obs["observable_composition"]["observables"]:
-					extractObservable(args,observable["object"], values )
-			else:
-				raise Exception("Could not find observable in indicator")
+					if 'object' in observable:
+						extractObservable(args,observable["object"], values )
+
 		except:
 			
 			print >> sys.stderr, "Could not handle observable/indicator:\n"
@@ -99,9 +99,10 @@ class PassThroughOptionParser(OptionParser):
 def get_parser():
 
 	parser = PassThroughOptionParser(add_help_option=False)
+	
 	parser.add_option('-h', '--help', help='Show help message', action='store_true')
-	parser.add_option('-r', '--referenceset', help='Name of the reference set to import into. This set must already exist. Required', action='store')
-	parser.add_option('-i', '--ip', default="127.0.0.1", help='IP or Host of the QRadar console, or localhost if not present', action='store')
+	parser.add_option('-r', '--referenceset', help='Name of the reference set to import into. This set must already exist. Either set or map is required', action='store')
+	parser.add_option('-i', '--ip', default="127.0.0.1", help='IP or Host of the QRadar console', action='store')
 	parser.add_option('-t', '--token', help='QRadar authorized service token', action='store')
 	parser.add_option('-f', '--file', help='STIX file to import. Either this parameter or a STIX file is required', action='store')
 	parser.add_option('-y', '--type', help='Only import this type of indicator', action='store')
@@ -126,7 +127,7 @@ def get_parser():
 
 
 def print_help(parser):
-		print >> sys.stderr, "\nA utility that imports STIX documents from either a TAXII server collection or a file.\n\n"
+		print >> sys.stderr, "\nA utility that imports STIX documents from either a TAXII server collection or a file.\n"
 		print >> sys.stderr, "All indicators and observables in the STIX document(s) will be imported into the specified reference set.\n"
 		print >> sys.stderr, parser.format_help().strip()
 	 
@@ -141,52 +142,59 @@ def process_package_dict(args,stix_dict):
 	if "indicators" in stix_dict:
 		values.extend( extractObservables( args, stix_dict["indicators"] ) )
 
-	if args[0].ip:
-		serverIP = args[0].ip
-	else:
-		serverIP = '127.0.0.1'
+	if len(values) > 0:
+		if args[0].ip:
+			serverIP = args[0].ip
+		else:
+			serverIP = '127.0.0.1'
 
-	url = 'https://' + serverIP + '/api/referencedata/sets/bulkLoad/' + args[0].referenceset
+		url = 'https://' + serverIP + '/api/referencedata/sets/bulkLoad/' + args[0].referenceset
 
-	headers = { 'Accept': 'application/json', 'Content-type':'application/json', 'version':'0.1', 'SEC':args[0].token }
+		headers = { 'Accept': 'application/json', 'Content-type':'application/json', 'version':'0.1', 'SEC':args[0].token }
 
-	data = json.dumps(values)
-	data = data.encode('utf-8')
+		data = json.dumps(values)
+		data = data.encode('utf-8')
 	
-	if args[0].verbose:
-		print >> sys.stderr, "POSTING DATA:\n" + data + "\n"
+		if args[0].verbose:
+			print >> sys.stderr, "POSTING DATA:\n" + data + "\n"
 	
-	req = urllib2.Request(url, data, headers)
-	try:
-		response = urllib2.urlopen(req)
-		body = response.read().decode('utf-8')
-	except urllib2.HTTPError:
-		body = err.read()
-		print >> sys.stderr, "Error posting data " + data + "\n"
-		print >> sys.stderr, body
-		raise
+		req = urllib2.Request(url, data, headers)
+		try:
+			response = urllib2.urlopen(req)
+			body = response.read().decode('utf-8')
+			
+		except urllib2.HTTPError, err:
+			body = err.read()
+			print >> sys.stderr, "Error posting data " + data + "\n"
+			print >> sys.stderr, body
+			raise
 
-	response_json = json.loads(body)
+		response_json = json.loads(body)
 	
-	if args[0].verbose:
-		print >> sys.stderr, "RECIEVED RESPONSE:\n" + ( json.dumps(response_json, indent=2, separators=(',', ':')) ) + "\n"
+		if args[0].verbose:
+			print >> sys.stderr, "RECIEVED RESPONSE:\n" + ( json.dumps(response_json, indent=2, separators=(',', ':')) ) + "\n"
 	
 	return len(values)
 		
+
 def main():
 	
 	# This is a work-around for the fact that the 1.0 indicator type was removed from the STIX python 
-	# library, even though it is the essentially the same as the 1.1 type.
+	# library, even though it is the essentially the same as the 1.1 type. We want to still support 1.0
+	# indicators since they are out there, and there is no difference for the purposes of this script.
 	vocabs._VOCAB_MAP["stixVocabs:IndicatorTypeVocab-1.0"] = IndicatorType
+	
+	# Create XML parser that can strip namespaces
+	xmlParser = EntityParser()
 	
 	stix_package = None
 	
-	parser = get_parser()
-	args = parser.parse_args()
+	argParser = get_parser()
+	args = argParser.parse_args()
 
 	if args[0].help:
-		print_help(parser)
-		
+		print_help(argParser)
+	
 	# Import from a TAXII server
 	elif args[0].referenceset and args[0].taxii:
 		begin_ts = None
@@ -239,8 +247,6 @@ def main():
 		response_message = t.get_message_from_http_response(resp, '0')
 		
 		response_dict = response_message.to_dict();
-		
-		parser = EntityParser()
 
 		indicators = 0
 		
@@ -256,7 +262,7 @@ def main():
 					try:
 						# This string replace is a workaround for some invalid documents in my test server, if you don't need it, remove it
 						xmlString = content["content"].replace('low','Low').replace('medium','Medium').replace('high','High')
-						stix_package = parser.parse_xml(io.BytesIO(xmlString), False)
+						stix_package = xmlParser.parse_xml(io.BytesIO(xmlString), False)
 						indicators += process_package_dict( args, stix_package.to_dict() )
 					
 					except ValueError:
@@ -273,9 +279,7 @@ def main():
 	# Import from a XML file on disk
 	elif args[0].referenceset and args[0].file:
 		
-		parser = EntityParser()
-
-		stix_package = parser.parse_xml(args[0].file, False)
+		stix_package = xmlParser.parse_xml(args[0].file, False)
 
 		indicators = process_package_dict( args, stix_package.to_dict() )
 		
