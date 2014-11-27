@@ -8,11 +8,11 @@ It is a work in progress, and does not yet support all available STIX indicators
 REQUIREMENTS
 ===========
 
-This script is written to run in Python 2. It may work in Python 3, but it has not been tested
-and will likely need some modifications.
+This script is written to run in Python 2.7.6 and higher (a dependancy of the STIX library). It may work in Python 3, but it has not been tested by myself and will likely need some modifications. 
 
-This script requires python-stix, libtaxii, and their dependancies. You can install these using
-the instructions located at 
+Note that QRadar does not currently ship with Python 2.7, so this script can normally not be run directly on the QRadar console without extensive workarounds.
+
+This script requires python-stix, libtaxii, and their dependancies. You can install these using pip, or following the instructions located at 
 
    https://github.com/STIXProject/python-stix 
 
@@ -20,7 +20,7 @@ and
 
    http://libtaxii.readthedocs.org/en/latest/installation.html
 
-The script also requires pytz for date/time parsing - http://pytz.sourceforge.net/
+The script also requires pytz for date/time parsing. You can install using pip, or instructions at http://pytz.sourceforge.net/
 
 DETAILED DESCRIPTION
 ===========
@@ -42,18 +42,22 @@ EXAMPLE USE
 
 To import from a TAXII server
 -----------------------------
+```./stix_import.py -x MyTaxiiServer.com --taxii_username MyUserName --taxii_password MyPassword --taxii_endpoint /taxii-discovery-service --taxii_start_time '2014-05-26 12:00:00' -c testCollection -i 1.2.3.4 -t XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX -r MyReferenceSet```
 
-  stix_import.py -x MyTaxiiServer.com --taxii_username MyUserName --taxii_password MyPassword --taxii_endpoint /taxii-discovery-service --taxii_start_time '2014-05-26 12:00:00' -c testCollection -i 192.168.56.2 -t XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX -r MyReferenceSet
+An example using the 'hailataxii.com' test service and the Zeus tracker:
+-----------------------------
+
+```./stix_import.py -i 1.2.3.4 -t XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX -x 'hailataxii.com' --taxii_endpoint '/taxii-discovery-service' -c guest.Abuse_ZeusTracker -r ZeusTracker -y AddressObjectType --taxii_start_time "`date -d yesterday '+%Y-%m-%d %H:%M:%S'`" --taxii_end_time "`date '+%Y-%m-%d %H:%M:%S'`"```
 
 To import from a local STIX document
 ------------------------------------
 
-  stix_import.py -f STIXDocument.xml i 192.168.56.2 -t XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX -r MyReferenceSet
+```./stix_import.py -f STIXDocument.xml i 192.168.56.2 -t XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX -r MyReferenceSet```
 
 To display help
 ---------------
 
-  stix_import.py --help
+```./stix_import.py --help
 
 A utility that imports STIX documents from either a TAXII server collection or a file.
 
@@ -98,6 +102,7 @@ Options:
   --taxii_end_time=END_TS
                         The end timestamp (YYYY-MM-dd HH:MM:SS) in UTC for the
                         taxii poll request. Defaults to None.
+```
 
 LICENSE
 ===========
