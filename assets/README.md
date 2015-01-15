@@ -9,10 +9,12 @@ The asset with the most recent occurrence of the ip address is updated with the 
 example:
 
 ipaddress,Technical Owner,Location,Description
-172.16.129.128,Chris Meenan,UK,Email Server
-172.16.129.129,Joe Blogs,Altanta,Customer Database Server
-172.16.129.130,Jason Corbin,Boston,Application Server
 
+172.16.129.128,Chris Meenan,UK,Email Server
+
+172.16.129.129,Joe Blogs,Altanta,Customer Database Server
+
+172.16.129.130,Jason Corbin,Boston,Application Server
 
 Usage
 ========================
