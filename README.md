@@ -13,3 +13,6 @@ stix-import
 ===========
 An example python script that allows you to import STIX indicators either from an XML file or from a TAXII server
 
+assets
+======
+An example python script that allows you to import data from a CSV file into the asset model
