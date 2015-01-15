@@ -16,3 +16,8 @@ An example python script that allows you to import STIX indicators either from a
 assets
 ======
 An example python script that allows you to import data from a CSV file into the asset model
+
+excel
+=====
+
+Excel spreadsheet to retrieve and update reference data (tables and maps of sets) directly from an excel spreadsheet
