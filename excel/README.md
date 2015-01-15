@@ -1,9 +1,14 @@
-An example excel spreadsheet used to retrieve and update the contents of a radar reference table.
+An example excel spreadsheet used to retrieve and update the contents of a radar reference table and map of sets.
 
-Please note the reference table must have already been created.
+Please note the reference table or the map of sets must have already been created.
 
 Reference tables are a great way of bringing in additional context information about users etc. such as
 fullname, department, manager and then using this information in searches and correlation rules.
+
+Maps of sets are a great way to list what IPs or assets users are allowed to access. The correlation engine can then 
+generate incidents when certain accounts access servers that they are not supposed to.
+
+Furthermore reference tables and maps of sets can be utilized by the advanced search in the event and flow viewer.
 
 The spreadsheet is very straightforward. On the  first work sheet, called "Config", you configure:
 
