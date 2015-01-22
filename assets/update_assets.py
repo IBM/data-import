@@ -1,4 +1,4 @@
-# This script is used to run an AQL Query and then load the results into a reference set or reference table
+# This script enables QRadar users to update QRadar assets from a master CSV file. For usage information, type: update_assets.py --help. 
 import sys, os
 import json, time
 from urllib2 import Request
