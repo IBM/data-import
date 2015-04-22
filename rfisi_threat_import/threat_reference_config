@@ -1,0 +1,4 @@
+# Configuration for connecting to QRadar SIEM's API
+qradarIP='bluecar.canlab.ibm.com'
+qradarAPIToken='be2ea2bb-897b-48ec-9de9-efdd6ae7b60f'
+
