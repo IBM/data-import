@@ -37,7 +37,7 @@ def createReferenceSet(name,elmType,ttl):
 		print(str(exception) + ', exiting.\n')
 
 def createReferenceTable(name,keyName,keyType,defaultElmType,fieldNamesAndTypes,ttl):
-	url='https://' + qradarIpAddress + '/api/reference_data/sets'
+	url='https://' + qradarIpAddress + '/api/reference_data/tables'
 	headers={'SEC': qradarSecToken, 'Version': '4.0', 'Accept': 'application/json'}
 	data={'name': name, 'element_type': defaultElmType, 'outer_key_label': keyType, 'key_name_types': fieldNamesAndTypes, 'time_to_live': ttl, 'timeout_type': 'LAST_SEEN'}
 
@@ -63,8 +63,8 @@ def main():
 	createReferenceTable('Phishing Subjects Data','PhishingSubject','ALNIC','ALNIC',generic_table_fields,'7 days')
 
 	# Phishing URLs
-	createReferenceSet('Malware URLs','ALN','7 days')
-	createReferenceTable('Malware URLs Data','MalwareURL','ALN','ALNIC',generic_table_fields,'7 days')
+	createReferenceSet('Phishing URLs','ALN','7 days')
+	createReferenceTable('Phishing URLs Data','PhishingURL','ALN','ALNIC',generic_table_fields,'7 days')
 
 	# Spam Senders
 	createReferenceSet('Spam Senders','IP','7 days')
