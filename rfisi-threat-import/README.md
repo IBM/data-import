@@ -24,12 +24,17 @@ EXAMPLE USE
 
 To create the reference collections (one time only)
 ---------------------------------------------------
-```./threat_reference_collections.py```
+```
+./threat_reference_collections.py
+```
 
 Add a single entry into the "Spam Senders" set and table
 --------------------------------------------------------
 
-```./threat_reference_sample.py```
+```
+./threat_reference_sample.py
+```
+
 
 LICENSE
 ===========
