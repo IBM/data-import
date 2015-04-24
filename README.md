@@ -25,6 +25,6 @@ Excel spreadsheet to retrieve and update reference data (tables and maps of sets
 rfisi-threat-import
 ===================
 
-sample code deonstrating the creation and feeding of reference collections defined by the Ready For IBM Security Intelligence partner program
+Sample code demonstrating the creation and feeding of reference collections defined by the Ready For IBM Security Intelligence partner program
 
 
