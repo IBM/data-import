@@ -27,4 +27,9 @@ rfisi-threat-import
 
 Sample code demonstrating the creation and feeding of reference collections defined by the Ready For IBM Security Intelligence partner program
 
+tor-nodes-import
+================
+
+A sample of extracting TOR relay node IPs from the TOR Bundle and importing those as reference data for QRadar
+
 

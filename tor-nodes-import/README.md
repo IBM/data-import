@@ -8,7 +8,7 @@ It is a work in progress, meant as a sample or starting point; it is missing com
 REQUIREMENTS
 ===========
 
-This script will run in Python 2.7+ and higher. It may work in Python 3, but that has not been tested. It is written to user version 4.0 of the QRadar API and therefore requires QRadar 7.2.4. However, with minor edits it should work with older versions as well. 
+This script will run in Python 2.7+ and higher. It may work in Python 3, but that has not been tested. It is written to use version 4.0 of the QRadar API and therefore requires QRadar 7.2.4. However, with minor edits it should work with older versions as well. 
 
 Note that QRadar does not currently ship with Python 2.7, so this script can normally not be run directly on the QRadar console. Additionally, it expects to find and execute the TOR Browser bundle (modified Firefox) and therefore is best run on a desktop (Mac, Windows, Linux) that has the Tor Bundle installed. With proper knowledge of Tor's workings, one could modify it to run the anonymizing proxy directly to enable 'headless' execution.  I haven't even tried that, yet.
 
