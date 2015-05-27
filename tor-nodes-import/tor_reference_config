@@ -1,0 +1,18 @@
+# Configuration for connecting to QRadar SIEM's API
+qradarIP='127.0.0.1'
+qradarAPIToken='xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+
+# all the following relate to tor configuration and paths
+# and may need to be edited to suit your environment
+CONTROL_PORT = 9151
+
+# the following three lines are suited for Windows
+#TOR_PATH = r"Tor Browser/Browser/firefox.exe"
+##TOR_PS_NAME=r"./tor.exe"
+##TASKLIST=['tasklist']
+
+# the following 3 lines are suited for MacOSX
+TASKLIST=['ps','-xo','command']
+TOR_PATH = r"/Applications/TorBrowser.app/Contents/MacOS/firefox"
+TOR_PS_NAME=r"./tor.real"
+
