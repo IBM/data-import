@@ -4,6 +4,7 @@ This is a simple script that can be used to import IP addresses of active TOR re
 
 It is a work in progress, meant as a sample or starting point; it is missing complete error handling and probably should be converted to use the bulk load API endpoints for performance.
 
+Original script written by Yossi Gilad of IBM's Security Center of Excellence; adapted for use with QRadar.
 
 REQUIREMENTS
 ===========
