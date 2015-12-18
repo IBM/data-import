@@ -20,7 +20,7 @@ import pytz
 from stix.utils.parser import EntityParser
 
 
-def extractObservable(args, obs, values):
+def extract_observable(args, obs, values):
     typ = obs["properties"]["xsi:type"]
 
     if args[0].type and args[0].type != typ:
@@ -62,7 +62,7 @@ def extractObservable(args, obs, values):
             print >> sys.stderr, "Encountered unsupported CybOX observable type: " + typ + ", ignoring..."
 
 
-def extractObservables(args, indicators):
+def extract_observables(args, indicators):
     values = []
 
     for indicator in indicators:
@@ -74,11 +74,11 @@ def extractObservables(args, indicators):
 
         try:
             if 'object' in obs:
-                extractObservable(args, obs["object"], values)
+                extract_observable(args, obs["object"], values)
             elif 'observable_composition' in obs:
                 for observable in obs["observable_composition"]["observables"]:
                     if 'object' in observable:
-                        extractObservable(args, observable["object"], values)
+                        extract_observable(args, observable["object"], values)
 
         except:
 
@@ -163,18 +163,18 @@ def process_package_dict(args, stix_dict):
     values = []
     if "observables" in stix_dict:
         values.extend(
-                extractObservables(args, stix_dict["observables"]["observables"]))
+                extract_observables(args, stix_dict["observables"]["observables"]))
 
     if "indicators" in stix_dict:
-        values.extend(extractObservables(args, stix_dict["indicators"]))
+        values.extend(extract_observables(args, stix_dict["indicators"]))
 
     if len(values) > 0:
         if args[0].ip:
-            serverIP = args[0].ip
+            server_ip = args[0].ip
         else:
-            serverIP = '127.0.0.1'
+            server_ip = '127.0.0.1'
 
-        url = 'https://' + serverIP + '/api/referencedata/sets/bulkLoad/' + \
+        url = 'https://' + server_ip + '/api/referencedata/sets/bulkLoad/' + \
               args[0].referenceset
 
         headers = {'Accept': 'application/json',
@@ -201,7 +201,7 @@ def process_package_dict(args, stix_dict):
         response_json = json.loads(body)
 
         if args[0].verbose:
-            print >> sys.stderr, "RECIEVED RESPONSE:\n" + (
+            print >> sys.stderr, "RECEIVED RESPONSE:\n" + (
                 json.dumps(response_json, indent=2,
                            separators=(',', ':'))) + "\n"
 
@@ -210,33 +210,29 @@ def process_package_dict(args, stix_dict):
 
 def main():
     # Create XML parser that can strip namespaces
-    xmlParser = EntityParser()
+    xml_parser = EntityParser()
 
-    stix_package = None
-
-    argParser = get_parser()
-    args = argParser.parse_args()
+    arg_parser = get_parser()
+    args = arg_parser.parse_args()
 
     if args[0].help:
-        print_help(argParser)
+        print_help(arg_parser)
 
     # Import from a TAXII server
     elif args[0].referenceset and args[0].taxii:
-        begin_ts = None
-        end_ts = None
 
         try:
             if args[0].begin_ts:
-                structTime = time.strptime(args[0].begin_ts,
-                                           '%Y-%m-%d %H:%M:%S')
-                begin_ts = datetime.datetime(*structTime[:6])
+                struct_time = time.strptime(args[0].begin_ts,
+                                            '%Y-%m-%d %H:%M:%S')
+                begin_ts = datetime.datetime(*struct_time[:6])
                 begin_ts = begin_ts.replace(tzinfo=pytz.UTC)
             else:
                 begin_ts = None
 
             if args[0].end_ts:
-                structTime = time.strptime(args[0].end_ts, '%Y-%m-%d %H:%M:%S')
-                end_ts = datetime.datetime(*structTime[:6])
+                struct_time = time.strptime(args[0].end_ts, '%Y-%m-%d %H:%M:%S')
+                end_ts = datetime.datetime(*struct_time[:6])
                 end_ts = end_ts.replace(tzinfo=pytz.UTC)
             else:
                 end_ts = None
@@ -249,7 +245,7 @@ def main():
                                     collection_name=args[0].collection,
                                     exclusive_begin_timestamp_label=begin_ts,
                                     inclusive_end_timestamp_label=end_ts,
-                                    poll_parameters=tm11.PollRequest.PollParameters())
+                                    poll_parameters=tm11.PollRequest.poll_parameters)
 
         poll_req_xml = poll_req.to_xml()
 
@@ -259,7 +255,7 @@ def main():
             client.setUseHttps(True)
 
         if args[0].taxii_username:
-            client.setAuthType(1)
+            client.setAuthType("AUTH_BASIC")
 
             if not args[0].taxii_password:
                 args[0].taxii_password = getpass.getpass(
@@ -276,29 +272,29 @@ def main():
 
         response_message = t.get_message_from_http_response(resp, '0')
 
-        response_dict = response_message.to_dict();
+        response_dict = response_message.to_dict()
 
         indicators = 0
 
         if 'content_blocks' in response_dict:
             for content in response_dict["content_blocks"]:
-                bindingId = content["content_binding"]["binding_id"]
+                binding_id = content["content_binding"]["binding_id"]
 
-                if bindingId and bindingId.startswith(
+                if binding_id and binding_id.startswith(
                         "urn:stix.mitre.org:xml"):
                     if args[0].verbose:
-                        print >> sys.stderr, "RECIEVED STIX DATA:\n"
+                        print >> sys.stderr, "RECEIVED STIX DATA:\n"
                         print >> sys.stderr, content["content"]
 
                     try:
                         # This string replace is a workaround for some invalid documents in my test server, if you don't need it, remove it
-                        xmlString = content["content"].replace('low',
-                                                               'Low').replace(
+                        xml_string = content["content"].replace('low',
+                                                                'Low').replace(
                                 'medium',
                                 'Medium').replace(
                                 'high', 'High')
-                        stix_package = xmlParser.parse_xml(
-                                io.BytesIO(xmlString), False)
+                        stix_package = xml_parser.parse_xml(
+                                io.BytesIO(xml_string), False)
                         indicators += process_package_dict(args,
                                                            stix_package.to_dict())
 
@@ -310,14 +306,14 @@ def main():
             print "Imported", indicators, "indicators into reference set", \
                 args[0].referenceset
         else:
-            print >> sys.stderr, "Invalid reponse from TAXII server"
+            print >> sys.stderr, "Invalid response from TAXII server"
             pprint.pprint(response_dict, sys.stderr)
             exit(255)
 
     # Import from a XML file on disk
     elif args[0].referenceset and args[0].file:
 
-        stix_package = xmlParser.parse_xml(args[0].file, False)
+        stix_package = xml_parser.parse_xml(args[0].file, False)
 
         indicators = process_package_dict(args, stix_package.to_dict())
 
