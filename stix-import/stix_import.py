@@ -17,8 +17,6 @@ import libtaxii as t
 import libtaxii.clients as tc
 import libtaxii.messages_11 as tm11
 import pytz
-from stix.common import vocabs
-from stix.common.vocabs import IndicatorType
 from stix.utils.parser import EntityParser
 
 
@@ -211,11 +209,6 @@ def process_package_dict(args, stix_dict):
 
 
 def main():
-    # This is a work-around for the fact that the 1.0 indicator type was removed from the STIX python
-    # library, even though it is the essentially the same as the 1.1 type. We want to still support 1.0
-    # indicators since they are out there, and there is no difference for the purposes of this script.
-    vocabs._VOCAB_MAP["stixVocabs:IndicatorTypeVocab-1.0"] = IndicatorType
-
     # Create XML parser that can strip namespaces
     xmlParser = EntityParser()
 
