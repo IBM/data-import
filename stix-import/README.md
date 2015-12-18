@@ -57,7 +57,8 @@ To import from a local STIX document
 To display help
 ---------------
 
-```./stix_import.py --help
+```
+./stix_import.py --help
 
 A utility that imports STIX documents from either a TAXII server collection or a file.
 
