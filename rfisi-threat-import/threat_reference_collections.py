@@ -26,7 +26,7 @@ qradarIpAddress = config.get('qradarIP')
 qradarSecToken = config.get('qradarAPIToken')
 
 
-def createReferenceSet(name,elmType,ttl):
+def createReferenceSet(name, elmType, ttl):
     url='https://' + qradarIpAddress + '/api/reference_data/sets'
     headers={'SEC': qradarSecToken, 'Version': '4.0', 'Accept': 'application/json'}
     data={'name': name, 'element_type': elmType, 'time_to_live': ttl, 'timeout_type': 'LAST_SEEN'}
@@ -38,7 +38,7 @@ def createReferenceSet(name,elmType,ttl):
         print(str(exception) + ', exiting.\n')
 
 
-def createReferenceTable(name,keyName,keyType,defaultElmType,fieldNamesAndTypes,ttl):
+def createReferenceTable(name, keyName, keyType, defaultElmType, fieldNamesAndTypes, ttl):
     url = 'https://' + qradarIpAddress + '/api/reference_data/tables'
     headers = {'SEC': qradarSecToken, 'Version': '4.0', 'Accept': 'application/json'}
     data = {'name': name, 'element_type': defaultElmType, 'outer_key_label': keyType, 'key_name_types': fieldNamesAndTypes, 'time_to_live': ttl, 'timeout_type': 'LAST_SEEN'}
@@ -62,8 +62,23 @@ def main():
                            '{"key_name":"Confidence","element_type":"NUM"},' \
                            '{"key_name":"First Seen Date","element_type":"DATE"},' \
                            '{"key_name":"Last Seen Date","element_type":"DATE"},' \
-                           '{"key_name":"Malware Family","element_type":"ALNIC"}' \
+                           '{"key_name":"Malware Family","element_type":"ALNIC"},' \
+                           '{"key_name":"Identifier","element_type":"NUM"},' \
+                           '{"key_name":"Portal URL","element_type":"ALNIC"},' \
+                           '{"key_name":"Report URL","element_type":"ALNIC"},' \
+                           '{"key_name":"Brand","element_type":"ALNIC"},' \
+                           '{"key_name":"Infrastructure Type","element_type":"ALNIC"}' \
                            ']'
+
+    phishing_table_fields = '[{"key_name":"Provider","element_type":"ALN"},' \
+                            '{"key_name":"Confidence","element_type":"NUM"},' \
+                            '{"key_name":"First Seen Date","element_type":"DATE"},' \
+                            '{"key_name":"Last Seen Date","element_type":"DATE"}' \
+                            '{"key_name":"Identifier","element_type":"DATE"},' \
+                            '{"key_name":"Portal URL","element_type":"DATE"},' \
+                            '{"key_name":"Report URL","element_type":"DATE"},' \
+                            '{"key_name":"Brand","element_type":"DATE"}' \
+                            ']'
 
     botnet_table_fields = '[{"key_name":"Provider","element_type":"ALN"},' \
                           '{"key_name":"Confidence","element_type":"NUM"},' \
@@ -89,7 +104,11 @@ def main():
 
     # Phishing URLs
     createReferenceSet('Phishing URLs', 'ALN', '7 days')
-    createReferenceTable('Phishing URLs Data', 'PhishingURL', 'ALN', 'ALNIC', generic_table_fields, '7 days')
+    createReferenceTable('Phishing URLs Data', 'PhishingURL', 'ALN', 'ALNIC', phishing_table_fields, '7 days')
+
+    # Phishing IPs
+    createReferenceSet('Phishing IPs', 'IP', '7 days')
+    createReferenceTable('Phishing IPs Data', 'PhishingIP', 'IP', 'ALNIC', phishing_table_fields, '7 days')
 
     # Spam Senders
     createReferenceSet('Spam Senders', 'IP', '7 days')
