@@ -73,11 +73,11 @@ def main():
     phishing_table_fields = '[{"key_name":"Provider","element_type":"ALN"},' \
                             '{"key_name":"Confidence","element_type":"NUM"},' \
                             '{"key_name":"First Seen Date","element_type":"DATE"},' \
-                            '{"key_name":"Last Seen Date","element_type":"DATE"}' \
-                            '{"key_name":"Identifier","element_type":"DATE"},' \
-                            '{"key_name":"Portal URL","element_type":"DATE"},' \
-                            '{"key_name":"Report URL","element_type":"DATE"},' \
-                            '{"key_name":"Brand","element_type":"DATE"}' \
+                            '{"key_name":"Last Seen Date","element_type":"DATE"},' \
+                            '{"key_name":"Identifier","element_type":"NUM"},' \
+                            '{"key_name":"Portal URL","element_type":"ALNIC"},' \
+                            '{"key_name":"Report URL","element_type":"ALNIC"},' \
+                            '{"key_name":"Brand","element_type":"ALNIC"}' \
                             ']'
 
     botnet_table_fields = '[{"key_name":"Provider","element_type":"ALN"},' \
